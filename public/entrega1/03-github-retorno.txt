@@ -1,0 +1,9 @@
+Homepage URL cadastrada na OAuth App do GitHub:
+
+URL_BASE
+
+Authorization callback URL cadastrada na OAuth App do GitHub:
+
+URL_BASE/oauth/callback/github
+
+(substituir URL_BASE pela URL .pages.dev atribuída ao projeto, sem barra final)

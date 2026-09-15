@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Laboratório de autenticação</title>
+    <link rel="stylesheet" href="/vendor/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/volt.css" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="bg-soft">
+    <main class="d-flex align-items-center justify-content-center min-vh-100">
+      <div class="card shadow-soft border-0" style="max-width: 420px; width: 100%;">
+        <div class="card-body p-4 p-lg-5 text-center">
+          <img src="/assets/img/brand/dark.svg" alt="Logo" height="32" class="mb-4" />
+          <h1 class="h4 mb-3">Laboratório de autenticação</h1>
+          <p id="status" class="text-muted small">A sessão ainda não foi consultada.</p>
+
+          <div id="login-actions" class="d-grid gap-2 mt-4">
+            <a href="/oauth/login/google" class="btn btn-outline-dark">Entrar com Google</a>
+            <a href="/oauth/login/github" class="btn btn-dark">Entrar com GitHub</a>
+          </div>
+
+          <div id="session-actions" class="d-grid gap-2 mt-4 d-none">
+            <a href="/pages/dashboard/dashboard.html" class="btn btn-primary">Abrir dashboard</a>
+            <form method="post" action="/oauth/logout">
+              <button type="submit" class="btn btn-outline-secondary w-100">Sair</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

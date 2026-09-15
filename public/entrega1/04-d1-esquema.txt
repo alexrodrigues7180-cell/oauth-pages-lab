@@ -1,0 +1,15 @@
+Consulta executada no console D1:
+
+SELECT name, type
+FROM sqlite_schema
+WHERE name NOT LIKE 'sqlite_%'
+ORDER BY type, name;
+
+Resultado (colar aqui depois de criar o banco e rodar db/schema.sql):
+
+name                        | type
+----------------------------|-------
+oauth_transactions          | table
+sessions                    | table
+oauth_transactions_expiry   | index
+sessions_expiry             | index
