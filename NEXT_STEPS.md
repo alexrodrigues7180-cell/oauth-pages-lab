@@ -23,7 +23,13 @@ Cloudflare — ninguém além de você pode fazer isso, porque dependem de login
 - `db/schema.sql` — pronto para colar no console do D1.
 - `public/entrega1/` — modelos dos arquivos de evidência que dá para preparar
   sem uma implantação real (veja `public/entrega1/README-PENDENCIAS.md`).
-- Repositório git local iniciado (branch `main`), pronto para o `git push`.
+- Repositório no GitHub: https://github.com/alexrodrigues7180-cell/oauth-pages-lab
+  (privado, branch `main`, já com o push feito).
+- Banco D1 **`oauth-sessions`** já criado na Cloudflare (conta
+  `alexrodrigues7180@gmail.com`, região ENAM, id `6b5b092f-d50c-4c9f-91e1-b5a5eeb82289`)
+  e com o `db/schema.sql` já aplicado (via `wrangler d1 execute --remote`).
+  Resultado da consulta de conferência já está em `public/entrega1/04-d1-esquema.txt`.
+  Falta só a ligação (Settings > Bindings) no projeto Pages.
 
 ### O que eu testei localmente (sem tocar em nada de produção)
 
@@ -49,19 +55,15 @@ próprio roteiro deixa isso explícito na seção 4).
 
 ## O que falta (na ordem do roteiro)
 
-1. **Criar o repositório no GitHub** (seção 7.1). Repositório novo, branch
-   `main`, pode ser privado. Depois:
-   ```
-   cd ~/oauth-pages-lab
-   git remote add origin <URL_DO_REPOSITORIO_NOVO>
-   git push -u origin main
-   ```
+1. ~~Criar o repositório no GitHub~~ — feito.
 2. **Cloudflare Pages** (seção 8): Workers & Pages → Create → Pages → Connect
-   to Git → selecione o repositório → branch de produção `main` → Framework
-   preset `None`, build command vazio, Build output directory `public`.
-3. **D1** (seção 9): criar o banco `oauth-sessions-EQUIPE`, abrir o Console e
-   colar o conteúdo de `db/schema.sql`. Depois, em Settings > Bindings do
-   projeto Pages, criar a ligação D1 com **Variable name** `DB`.
+   to Git → autorizar o GitHub App da Cloudflare → selecione o repositório
+   `oauth-pages-lab` → branch de produção `main` → Framework preset `None`,
+   build command vazio, Build output directory `public`. Esse passo só dá
+   pra fazer pelo painel (é um consentimento de app do GitHub).
+3. **D1** (seção 9): ~~criar o banco e rodar o schema~~ — feito (banco
+   `oauth-sessions`). Falta só: em Settings > Bindings do projeto Pages,
+   criar a ligação D1 com **Variable name** `DB` apontando pra ele.
 4. **Google Cloud** (seção 10): tela de consentimento em teste, cliente Web
    com redirect `URL_BASE/oauth/callback/google`, escopos `openid email profile`.
 5. **GitHub OAuth App** (seção 11): Homepage URL = `URL_BASE`, Authorization
@@ -69,7 +71,9 @@ próprio roteiro deixa isso explícito na seção 4).
 6. **Variáveis e segredos no Pages** (seção 12): `PUBLIC_BASE_URL`,
    `GOOGLE_CLIENT_ID`, `GITHUB_CLIENT_ID` como texto; `GOOGLE_CLIENT_SECRET` e
    `GITHUB_CLIENT_SECRET` marcados como **Encrypt**. Depois, gatilhar um novo
-   deploy.
+   deploy. (Os dois Client Secrets eu consigo cadastrar via `wrangler pages
+   secret put` assim que você tiver os valores do Google/GitHub — é só me
+   passar.)
 7. **Testar pelo navegador** (seções 15 e 16) e preencher `public/entrega1/`
    com os arquivos que faltam (veja o checklist em
    `public/entrega1/README-PENDENCIAS.md`).

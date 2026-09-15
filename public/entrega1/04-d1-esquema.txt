@@ -5,11 +5,14 @@ FROM sqlite_schema
 WHERE name NOT LIKE 'sqlite_%'
 ORDER BY type, name;
 
-Resultado (colar aqui depois de criar o banco e rodar db/schema.sql):
+Banco: oauth-sessions (D1, região ENAM)
+
+Resultado:
 
 name                        | type
 ----------------------------|-------
-oauth_transactions          | table
-sessions                    | table
 oauth_transactions_expiry   | index
 sessions_expiry             | index
+_cf_KV                      | table  (tabela interna do D1, criada automaticamente pela Cloudflare)
+oauth_transactions          | table
+sessions                    | table
