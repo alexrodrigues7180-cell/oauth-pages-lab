@@ -56,7 +56,14 @@ próprio roteiro deixa isso explícito na seção 4).
 ## O que falta (na ordem do roteiro)
 
 1. ~~Criar o repositório no GitHub~~ — feito.
-2. **Cloudflare Pages** (seção 8): Workers & Pages → Create → Pages → Connect
+2. **Cloudflare Pages** (seção 8) — ⚠️ o nome `oauth-pages-lab` estava ocupado por
+   um Worker órfão criado por engano em 15/09; **ele foi apagado em 16/09**
+   (`wrangler delete --name oauth-pages-lab`), porque Workers e Pages dividem o
+   mesmo espaço de nomes na conta e era isso que jogava o dashboard de volta na
+   tela "Configure your Worker project" com erro de nome duplicado.
+   Caminho correto: Workers & Pages → Create → **no rodapé da tela "Make
+   something new", o link "Need to use the legacy Pages workflow? Continue to
+   Pages"** → Connect
    to Git → autorizar o GitHub App da Cloudflare → selecione o repositório
    `oauth-pages-lab` → branch de produção `main` → Framework preset `None`,
    build command vazio, Build output directory `public`. Esse passo só dá
