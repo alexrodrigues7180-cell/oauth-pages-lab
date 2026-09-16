@@ -1,11 +1,11 @@
-Consulta executada no console D1:
+Consulta executada no Console do D1, pelo painel da Cloudflare (navegador):
 
 SELECT name, type
 FROM sqlite_schema
 WHERE name NOT LIKE 'sqlite_%'
 ORDER BY type, name;
 
-Banco: oauth-sessions (D1, região ENAM)
+Banco: oauth-sessions-alexandre-laerto (D1)
 
 Resultado:
 
@@ -16,3 +16,8 @@ sessions_expiry             | index
 _cf_KV                      | table  (tabela interna do D1, criada automaticamente pela Cloudflare)
 oauth_transactions          | table
 sessions                    | table
+
+As duas tabelas previstas (oauth_transactions e sessions) e os dois indices de
+expiracao (oauth_transactions_expiry e sessions_expiry) existem. A linha _cf_KV
+nao foi criada pelo schema do laboratorio: e uma tabela de uso interno da
+plataforma D1, presente em qualquer banco recem-criado.
