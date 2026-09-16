@@ -39,10 +39,15 @@ Data da execucao: 16/09/2026
 
 ## Caso 4: sessao expirada
 
-- Preparacao: `UPDATE sessions SET expires_at = 0;` no console D1.
-- Pedido enviado: `GET /api/me`
+- Preparacao: sessao valida criada por login real no navegador; em seguida
+  `UPDATE sessions SET expires_at = 0;` executado no console D1 do banco
+  `oauth-sessions-alexandre-laerto`.
+- Pedido enviado: `GET /api/me` no mesmo navegador, com o cookie `__Host-session`
+  ainda presente e intacto.
 - Resultado esperado: `401`.
-- Resultado observado:
+- Resultado observado: **401** (HTTP/2, 195 ms), conforme a aba Rede do navegador.
+  O cookie continuava sendo enviado: a recusa veio da conferencia de `expires_at`
+  no D1, nao da ausencia do cookie. A resposta traz `Cache-Control: no-store`.
 
 ## Caso 5: origem invalida na saida
 
