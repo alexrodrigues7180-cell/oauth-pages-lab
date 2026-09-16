@@ -1,6 +1,16 @@
 import { sha256Hex } from "../_shared/crypto.js";
 import { parseCookies, expireHostCookie } from "../_shared/cookies.js";
 
+export async function onRequest(context) {
+  if (context.request.method !== "POST") {
+    return new Response(null, {
+      status: 405,
+      headers: { Allow: "POST", "Cache-Control": "no-store" },
+    });
+  }
+  return onRequestPost(context);
+}
+
 export async function onRequestPost(context) {
   const env = context.env;
   const origin = context.request.headers.get("Origin");
