@@ -1,9 +1,7 @@
 Homepage URL cadastrada na OAuth App do GitHub:
 
-URL_BASE
+https://oauth-pages-lab-57s.pages.dev
 
 Authorization callback URL cadastrada na OAuth App do GitHub:
 
-URL_BASE/oauth/callback/github
-
-(substituir URL_BASE pela URL .pages.dev atribuída ao projeto, sem barra final)
+https://oauth-pages-lab-57s.pages.dev/oauth/callback/github

@@ -1,5 +1,3 @@
 URL de retorno cadastrada no cliente Web do Google:
 
-URL_BASE/oauth/callback/google
-
-(substituir URL_BASE pela URL .pages.dev atribuída ao projeto, sem barra final)
+https://oauth-pages-lab-57s.pages.dev/oauth/callback/google
