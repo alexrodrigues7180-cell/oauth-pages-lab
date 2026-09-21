@@ -96,5 +96,5 @@ Data: 16/09/2026
 
 Assinaturas:
 
-- Integrante 1:
-- Integrante 2:
+- Integrante 1: Alexandre Vieira
+- Integrante 2: Laerto Santin
