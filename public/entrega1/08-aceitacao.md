@@ -22,7 +22,7 @@ Data: 16/09/2026
 - [x] um cookie revogado nao restaura a sessao;
 - [x] tokens e segredos nao aparecem no HTML, nas URLs salvas, no armazenamento Web ou nos registros;
 - [x] a dupla consegue explicar por que os arquivos estaticos permanecem publicos;
-- [ ] as sessoes administrativas foram encerradas no computador compartilhado.
+- [x] as sessoes administrativas foram encerradas no computador compartilhado.
 
 ## Base de cada item marcado
 
@@ -83,6 +83,9 @@ Data: 16/09/2026
   navegador: ele e usado dentro da Function para consultar `/user`, a autorizacao
   e revogada em seguida e so entao a sessao local e criada.
 
+- **Sessoes administrativas:** encerradas em 21/09/2026 nas contas do Google, do
+  GitHub e da Cloudflare, com a janela privativa fechada, conforme a secao 19.
+
 ## Itens em aberto
 
 - **Node/npm/npx/Wrangler:** durante a montagem do laboratorio o Wrangler foi
@@ -90,9 +93,6 @@ Data: 16/09/2026
   Esse banco foi descartado e o banco entregue, `oauth-sessions-alexandre-laerto`,
   foi criado e povoado pelo painel da Cloudflare, assim como a ligacao, as
   variaveis e os segredos. O item permanece desmarcado por honestidade.
-- **Encerramento das sessoes administrativas:** ao terminar, sair das contas do
-  Google, do GitHub e da Cloudflare no computador e fechar a janela privativa
-  (secao 19 do roteiro). Marcar esta caixa por ultimo.
 
 Assinaturas:
 
