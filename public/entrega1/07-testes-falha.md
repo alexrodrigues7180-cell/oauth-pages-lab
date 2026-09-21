@@ -63,7 +63,21 @@ Data da execucao: 16/09/2026
 
 ## Caso 6: reutilizacao do cookie revogado
 
-- Preparacao:
-- Pedido enviado: logout, depois restaurar o valor antigo de `__Host-session` e chamar `/api/me`.
-- Resultado esperado: `401`.
-- Resultado observado:
+- Preparacao: login real concluido no navegador (Google ou GitHub), com sessao
+  valida confirmada por `GET /api/me` respondendo `200`. Antes da saida, o valor
+  do cookie `__Host-session` foi copiado em Ferramentas do desenvolvedor >
+  Aplicativo > Cookies (o cookie e `HttpOnly`, entao nao aparece em
+  `document.cookie` e so pode ser lido e recolocado por esse painel). Em seguida
+  a saida foi executada por `POST /oauth/logout` a partir da propria origem, que
+  respondeu `204`, apagou a linha em `sessions` e devolveu `Set-Cookie` expirando
+  `__Host-session`.
+- Pedido enviado: cookie `__Host-session` recriado manualmente no painel de
+  Cookies com o valor antigo (`Path=/`, `Secure`, `HttpOnly`, `SameSite=Strict`,
+  sem `Domain`) e, na sequencia, `GET /api/me` na mesma aba.
+- Resultado esperado: `401`. O cookie volta a ser enviado, mas o resumo
+  correspondente nao existe mais em `sessions`, entao a sessao nao se restaura.
+- Resultado observado: PREENCHER apos executar no navegador — anotar o codigo de
+  resposta lido na aba Rede, confirmar que o cabecalho `Cookie` da requisicao
+  realmente carregava `__Host-session` (para provar que a recusa veio da ausencia
+  da linha no D1, e nao da falta do cookie) e registrar o `Cache-Control` da
+  resposta.

@@ -21,7 +21,7 @@ Data: 16/09/2026
 - [x] o logout confere `Origin`, remove a sessao e expira o cookie;
 - [ ] um cookie revogado nao restaura a sessao;
 - [ ] tokens e segredos nao aparecem no HTML, nas URLs salvas, no armazenamento Web ou nos registros;
-- [ ] a dupla consegue explicar por que os arquivos estaticos permanecem publicos;
+- [x] a dupla consegue explicar por que os arquivos estaticos permanecem publicos;
 - [ ] as sessoes administrativas foram encerradas no computador compartilhado.
 
 ## Base de cada item marcado
@@ -60,6 +60,16 @@ Data: 16/09/2026
   origem alheia, 204 com a origem correta), apaga a linha em `sessions` e expira o
   cookie. Metodos diferentes de POST recebem 405 com `Allow: POST`.
 
+- **Estaticos publicos:** a pasta `public` e servida pela rede de distribuicao da
+  Cloudflare como hospedagem estatica, antes de qualquer codigo nosso rodar. Nao
+  existe ponto onde uma Function possa interceptar esses pedidos, e tambem nao
+  deveria existir: `index.html`, `app.js` e o CSS nao guardam dado de ninguem. O
+  segredo nunca esta no arquivo entregue ao navegador, e sim na sessao: o que a
+  pagina consegue mostrar depende de `/api/me`, que exige o cookie `__Host-session`
+  e consulta o D1. Proteger o HTML daria uma falsa sensacao de seguranca, porque o
+  mesmo conteudo continuaria acessivel por qualquer cliente; o controle correto
+  fica na fronteira que devolve dados, nao na que devolve layout.
+
 ## Itens em aberto
 
 - **Node/npm/npx/Wrangler:** durante a montagem do laboratorio o Wrangler foi
@@ -67,10 +77,20 @@ Data: 16/09/2026
   Esse banco foi descartado e o banco entregue, `oauth-sessions-alexandre-laerto`,
   foi criado e povoado pelo painel da Cloudflare, assim como a ligacao, as
   variaveis e os segredos. O item permanece desmarcado por honestidade.
-- **Cookie revogado:** caso 6 de `07-testes-falha.md`, ainda por executar.
-- **Tokens e segredos fora do armazenamento Web:** conferencia pendente no navegador.
-- **Explicacao sobre os estaticos publicos** e **encerramento das sessoes
-  administrativas:** a cargo da dupla.
+- **Cookie revogado:** caso 6 de `07-testes-falha.md`. Roteiro do teste ja escrito
+  no arquivo; falta executar no navegador e anotar o resultado observado. Marcar
+  esta caixa quando o `GET /api/me` com o cookie antigo recolocado devolver `401`.
+- **Tokens e segredos fora do armazenamento Web:** conferir em Ferramentas do
+  desenvolvedor, com a sessao ativa: em Aplicativo > Armazenamento local,
+  Armazenamento de sessao e IndexedDB nao pode haver `access_token`, `id_token`,
+  `code_verifier`, `state`, `nonce` nem Client Secret; em Aplicativo > Cookies o
+  unico cookie de sessao e `__Host-session`, com valor opaco; no HTML recebido
+  (Ver codigo-fonte da pagina) nao pode aparecer nenhum desses valores; e nas URLs
+  guardadas no historico do navegador nao pode restar `code` nem `state`. Marcar
+  esta caixa depois da conferencia.
+- **Encerramento das sessoes administrativas:** ao terminar, sair das contas do
+  Google, do GitHub e da Cloudflare no computador e fechar a janela privativa
+  (secao 19 do roteiro). Marcar esta caixa por ultimo.
 
 Assinaturas:
 
