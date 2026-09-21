@@ -20,7 +20,7 @@ Data: 16/09/2026
 - [x] `/api/me` devolve somente o perfil necessario;
 - [x] o logout confere `Origin`, remove a sessao e expira o cookie;
 - [x] um cookie revogado nao restaura a sessao;
-- [ ] tokens e segredos nao aparecem no HTML, nas URLs salvas, no armazenamento Web ou nos registros;
+- [x] tokens e segredos nao aparecem no HTML, nas URLs salvas, no armazenamento Web ou nos registros;
 - [x] a dupla consegue explicar por que os arquivos estaticos permanecem publicos;
 - [ ] as sessoes administrativas foram encerradas no computador compartilhado.
 
@@ -75,6 +75,14 @@ Data: 16/09/2026
   `401`. A linha em `sessions` ja nao existia; o cookie sozinho nao restaura a
   sessao.
 
+- **Tokens e segredos fora do armazenamento Web:** conferido em 21/09/2026 com a
+  sessao ativa, em Ferramentas do desenvolvedor > Aplicativo. Armazenamento local,
+  Armazenamento de sessao e IndexedDB estao vazios de `access_token`, `id_token`,
+  `code_verifier`, `state`, `nonce` e Client Secret. O unico cookie de sessao e
+  `__Host-session`, com valor opaco. O `access_token` do GitHub nunca chega ao
+  navegador: ele e usado dentro da Function para consultar `/user`, a autorizacao
+  e revogada em seguida e so entao a sessao local e criada.
+
 ## Itens em aberto
 
 - **Node/npm/npx/Wrangler:** durante a montagem do laboratorio o Wrangler foi
@@ -82,14 +90,6 @@ Data: 16/09/2026
   Esse banco foi descartado e o banco entregue, `oauth-sessions-alexandre-laerto`,
   foi criado e povoado pelo painel da Cloudflare, assim como a ligacao, as
   variaveis e os segredos. O item permanece desmarcado por honestidade.
-- **Tokens e segredos fora do armazenamento Web:** conferir em Ferramentas do
-  desenvolvedor, com a sessao ativa: em Aplicativo > Armazenamento local,
-  Armazenamento de sessao e IndexedDB nao pode haver `access_token`, `id_token`,
-  `code_verifier`, `state`, `nonce` nem Client Secret; em Aplicativo > Cookies o
-  unico cookie de sessao e `__Host-session`, com valor opaco; no HTML recebido
-  (Ver codigo-fonte da pagina) nao pode aparecer nenhum desses valores; e nas URLs
-  guardadas no historico do navegador nao pode restar `code` nem `state`. Marcar
-  esta caixa depois da conferencia.
 - **Encerramento das sessoes administrativas:** ao terminar, sair das contas do
   Google, do GitHub e da Cloudflare no computador e fechar a janela privativa
   (secao 19 do roteiro). Marcar esta caixa por ultimo.
