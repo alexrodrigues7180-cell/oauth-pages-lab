@@ -63,21 +63,20 @@ Data da execucao: 16/09/2026
 
 ## Caso 6: reutilizacao do cookie revogado
 
-- Preparacao: login real concluido no navegador (Google ou GitHub), com sessao
-  valida confirmada por `GET /api/me` respondendo `200`. Antes da saida, o valor
-  do cookie `__Host-session` foi copiado em Ferramentas do desenvolvedor >
-  Aplicativo > Cookies (o cookie e `HttpOnly`, entao nao aparece em
-  `document.cookie` e so pode ser lido e recolocado por esse painel). Em seguida
+- Preparacao: login real concluido no navegador em 21/09/2026. A resposta do
+  retorno criou `__Host-session` (`Path=/`, `HttpOnly`, `Secure`,
+  `SameSite=Strict`, `Max-Age=28800`) e expirou o `__Host-oauth-tx` na mesma
+  resposta, com `Max-Age=0`. O valor do cookie de sessao foi guardado. Em seguida
   a saida foi executada por `POST /oauth/logout` a partir da propria origem, que
-  respondeu `204`, apagou a linha em `sessions` e devolveu `Set-Cookie` expirando
-  `__Host-session`.
-- Pedido enviado: cookie `__Host-session` recriado manualmente no painel de
-  Cookies com o valor antigo (`Path=/`, `Secure`, `HttpOnly`, `SameSite=Strict`,
-  sem `Domain`) e, na sequencia, `GET /api/me` na mesma aba.
-- Resultado esperado: `401`. O cookie volta a ser enviado, mas o resumo
+  respondeu **204** com `Set-Cookie: __Host-session=; Max-Age=0`, apagando tambem
+  a linha correspondente em `sessions`.
+- Pedido enviado: `GET /api/me` reapresentando o cookie revogado, com o cabecalho
+  `Cookie: __Host-session=<valor anterior a saida>` enviado explicitamente.
+- Resultado esperado: `401`. O cookie volta a ser apresentado, mas o resumo
   correspondente nao existe mais em `sessions`, entao a sessao nao se restaura.
-- Resultado observado: PREENCHER apos executar no navegador — anotar o codigo de
-  resposta lido na aba Rede, confirmar que o cabecalho `Cookie` da requisicao
-  realmente carregava `__Host-session` (para provar que a recusa veio da ausencia
-  da linha no D1, e nao da falta do cookie) e registrar o `Cache-Control` da
-  resposta.
+- Resultado observado: **401**, `content-length: 0` e `Cache-Control: no-store`.
+  O cookie foi enviado na requisicao, de modo que a recusa so pode ter vindo da
+  ausencia da linha no D1, e nao da falta do cookie. Uma chamada de controle ao
+  mesmo endereco sem cookie algum tambem devolveu **401**, sem diferenca de corpo
+  ou de cabecalho entre os dois casos: a rota nao revela se o cookie existia.
+  A sessao nao foi restaurada.

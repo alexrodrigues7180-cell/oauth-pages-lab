@@ -19,7 +19,7 @@ Data: 16/09/2026
 - [x] o D1 guarda o resumo do cookie, nao seu valor bruto;
 - [x] `/api/me` devolve somente o perfil necessario;
 - [x] o logout confere `Origin`, remove a sessao e expira o cookie;
-- [ ] um cookie revogado nao restaura a sessao;
+- [x] um cookie revogado nao restaura a sessao;
 - [ ] tokens e segredos nao aparecem no HTML, nas URLs salvas, no armazenamento Web ou nos registros;
 - [x] a dupla consegue explicar por que os arquivos estaticos permanecem publicos;
 - [ ] as sessoes administrativas foram encerradas no computador compartilhado.
@@ -70,6 +70,11 @@ Data: 16/09/2026
   mesmo conteudo continuaria acessivel por qualquer cliente; o controle correto
   fica na fronteira que devolve dados, nao na que devolve layout.
 
+- **Cookie revogado:** caso 6 de `07-testes-falha.md`. Depois da saida, o mesmo
+  valor de `__Host-session` foi reapresentado em `GET /api/me` e a resposta foi
+  `401`. A linha em `sessions` ja nao existia; o cookie sozinho nao restaura a
+  sessao.
+
 ## Itens em aberto
 
 - **Node/npm/npx/Wrangler:** durante a montagem do laboratorio o Wrangler foi
@@ -77,9 +82,6 @@ Data: 16/09/2026
   Esse banco foi descartado e o banco entregue, `oauth-sessions-alexandre-laerto`,
   foi criado e povoado pelo painel da Cloudflare, assim como a ligacao, as
   variaveis e os segredos. O item permanece desmarcado por honestidade.
-- **Cookie revogado:** caso 6 de `07-testes-falha.md`. Roteiro do teste ja escrito
-  no arquivo; falta executar no navegador e anotar o resultado observado. Marcar
-  esta caixa quando o `GET /api/me` com o cookie antigo recolocado devolver `401`.
 - **Tokens e segredos fora do armazenamento Web:** conferir em Ferramentas do
   desenvolvedor, com a sessao ativa: em Aplicativo > Armazenamento local,
   Armazenamento de sessao e IndexedDB nao pode haver `access_token`, `id_token`,
