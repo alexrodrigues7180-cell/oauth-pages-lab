@@ -83,10 +83,19 @@ Workflow: `.github/workflows/revisao-ia.yml`. Dispara em `opened` e `synchronize
 Já verificado no PR #1: `checkout@v6`, `setup-node@v6`, `npm install -g @github/copilot` e a
 montagem do prompt passam; só o step da IA falha, por falta do segredo `COPILOT_PAT`.
 
-Nota de método: a falha por credencial **não** se apresenta como erro de autorização. O que
-aparece é `API error: TypeError: Cannot use 'in' operator to search for 'choices' in OK` — a
-action tenta ler `choices` numa resposta que veio como texto `OK` em vez de JSON. Vale anotar,
-porque a mensagem aponta para o lugar errado.
+**Correção no enunciado.** O esqueleto fixa `actions/ai-inference@v1`, mas também manda rodar
+`npm install -g @github/copilot` e passar `COPILOT_GITHUB_TOKEN`. Essas duas coisas são da **v3**:
+a `v1` é anterior ao provider Copilot e chama o GitHub Models em
+`https://models.github.ai/inference` autenticando com o input `token`, que tem default
+`${{ github.token }}`. Ou seja, com `@v1` o segredo `COPILOT_PAT` nunca é lido, e o `GITHUB_TOKEN`
+não tem a permissão `models: read` — o workflow falha mesmo com o PAT corretamente configurado.
+Trocamos para `actions/ai-inference@v3`.
+
+Nota de método: essa falha **não** se apresenta como erro de autorização. O que aparece é
+`API error: TypeError: Cannot use 'in' operator to search for 'choices' in OK` — a action tenta
+ler `choices` numa resposta que veio como o texto `OK` em vez de JSON. A mensagem aponta para o
+lugar errado, e foi preciso ler os inputs resolvidos no log (`endpoint`, `model`, `max-tokens`)
+para perceber que a versão em uso não era a que o resto do workflow pressupunha.
 
 - [ ] PR com o SQL vulnerável (`env.DB.prepare(\`... WHERE email = '${email}'\`)`): LINK
 - [ ] comentário da IA apontando a concatenação: LINK
