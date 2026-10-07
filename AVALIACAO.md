@@ -76,21 +76,33 @@ error: failed to push some refs to 'https://github.com/alexrodrigues7180-cell/oa
 
 ## Tarefa 3 — revisão de PR por IA
 
-Workflow: `.github/workflows/revisao-ia.yml`.
+Workflow: `.github/workflows/revisao-ia.yml`. Dispara em `opened` e `synchronize`, declara
+`contents: read` + `pull-requests: write`, monta o prompt com o diff contra a base, chama
+`actions/ai-inference@v1` e publica a resposta com `gh pr comment`.
 
-- [ ] PR com SQL vulnerável: LINK
+Já verificado: no PR #1 o job `revisar` aparece e executa até o step da IA, onde falha por
+falta do segredo `COPILOT_PAT` — ou seja, o encadeamento do workflow está certo, falta a
+credencial.
+
+- [ ] PR com o SQL vulnerável (`env.DB.prepare(\`... WHERE email = '${email}'\`)`): LINK
 - [ ] comentário da IA apontando a concatenação: LINK
-- [ ] comentário após o `synchronize` com `prepare(...).bind(nome)`: LINK
+- [ ] `prepare("... WHERE email = ?").bind(email)` e segundo comentário no `synchronize`: LINK
 - [ ] log do erro ao remover `pull-requests: write`: LINK
 - [ ] afirmação errada ou irrelevante da IA: ESCREVER
 
 ## Tarefa 4 — migrações D1 depois do merge
 
-Workflow: `.github/workflows/migrar.yml`, com `paths: ['migrations/**']`.
-Migração da avaliação: `migrations/0002_adiciona_coluna.sql` (`last_seen_at` em `sessions`).
+Workflow: `.github/workflows/migrar.yml`, com `paths: ['migrations/**']`, mais o step bônus que
+resume as migrações com `actions/ai-inference` e escreve em `$GITHUB_STEP_SUMMARY`.
+
+Estado do banco remoto conferido antes (`wrangler d1 execute --remote`): existem
+`oauth_transactions`, `sessions`, `_cf_KV` e dois índices, e **não existe `d1_migrations`**.
+Então a primeira execução vai aplicar 0001 e 0002 de uma vez: a 0001 é `CREATE TABLE IF NOT
+EXISTS` e passa como no-op sobre as tabelas criadas à mão pelo Console em 16/09, e a 0002 cria
+de fato a coluna `last_seen_at` em `sessions`.
 
 - [ ] execução do merge: LINK
-- [ ] saída do `PRAGMA table_info(sessions)`: COLAR
+- [ ] saída do `PRAGMA table_info(sessions)` mostrando `last_seen_at`: COLAR
 - [ ] merge sem tocar `migrations/` e sem execução: LINK
 
 ## Perguntas
@@ -123,4 +135,7 @@ Tarefa 3, ela produz afirmações erradas ou irrelevantes, e o inverso também v
 passar um problema real. Ela serve para apontar o que um linter não vê, não para ser o portão.
 
 ## Bônus
-- [ ] resumo das migrações por IA no $GITHUB_STEP_SUMMARY
+
+Step já escrito no final do `migrar.yml`.
+
+- [ ] resumo visível no `$GITHUB_STEP_SUMMARY` da execução: LINK
