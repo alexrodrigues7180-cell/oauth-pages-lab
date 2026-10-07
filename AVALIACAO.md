@@ -41,13 +41,31 @@ mesmo. Resolvido com `':!.github/workflows/ci.yml'` no pathspec.
 
 ## Tarefa 2 — proteger a main com o CI
 
-- [ ] regra criada em Settings > Rules > Rulesets exigindo PR + status check `verificar`
-- [ ] PR bloqueado: LINK
-- [ ] PR liberado: LINK
-- [ ] `git push` direto na main recusado:
+Ruleset `main protegida pelo CI` (id 24683835), `enforcement: active`, sem bypass actors —
+vale inclusive para o dono do repositório. Alvo: `~DEFAULT_BRANCH`. Regras: `pull_request`
+(obrigatório), `required_status_checks` com o contexto `verificar`, mais `deletion` e
+`non_fast_forward`.
+
+Observação: o repositório era privado numa conta sem plano Pro, e nessa combinação o GitHub
+recusa rulesets com `403 — Upgrade to GitHub Pro or make this repository public`. Foi preciso
+tornar o repositório público (depois de auditar o histórico: nenhum segredo e nenhum
+identificador privado versionado).
+
+- PR de demonstração: https://github.com/alexrodrigues7180-cell/oauth-pages-lab/pull/1
+- Bloqueado com a migração quebrada: `mergeStateStatus: BLOCKED`, check `verificar` em FAILURE
+- Liberado após a correção na mesma ramificação: `verificar` em SUCCESS
+
+`git push` direto na main, recusado:
 
 ```
-COLAR A SAÍDA
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote:
+remote: - Changes must be made through a pull request.
+remote:
+remote: - Required status check "verificar" is expected.
+remote:
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/alexrodrigues7180-cell/oauth-pages-lab.git'
 ```
 
 ## Tarefa 3 — revisão de PR por IA
