@@ -80,9 +80,13 @@ Workflow: `.github/workflows/revisao-ia.yml`. Dispara em `opened` e `synchronize
 `contents: read` + `pull-requests: write`, monta o prompt com o diff contra a base, chama
 `actions/ai-inference@v1` e publica a resposta com `gh pr comment`.
 
-Já verificado: no PR #1 o job `revisar` aparece e executa até o step da IA, onde falha por
-falta do segredo `COPILOT_PAT` — ou seja, o encadeamento do workflow está certo, falta a
-credencial.
+Já verificado no PR #1: `checkout@v6`, `setup-node@v6`, `npm install -g @github/copilot` e a
+montagem do prompt passam; só o step da IA falha, por falta do segredo `COPILOT_PAT`.
+
+Nota de método: a falha por credencial **não** se apresenta como erro de autorização. O que
+aparece é `API error: TypeError: Cannot use 'in' operator to search for 'choices' in OK` — a
+action tenta ler `choices` numa resposta que veio como texto `OK` em vez de JSON. Vale anotar,
+porque a mensagem aponta para o lugar errado.
 
 - [ ] PR com o SQL vulnerável (`env.DB.prepare(\`... WHERE email = '${email}'\`)`): LINK
 - [ ] comentário da IA apontando a concatenação: LINK
@@ -94,6 +98,11 @@ credencial.
 
 Workflow: `.github/workflows/migrar.yml`, com `paths: ['migrations/**']`, mais o step bônus que
 resume as migrações com `actions/ai-inference` e escreve em `$GITHUB_STEP_SUMMARY`.
+
+O comando exato do workflow já foi validado contra o banco remoto com
+`wrangler d1 migrations list oauth-sessions-alexandre-laerto --remote`: o `wrangler.toml` é lido
+corretamente mesmo sendo uma config de Pages, o binding resolve pelo nome e as duas migrações
+aparecem como pendentes. Em CI falta só o `CLOUDFLARE_API_TOKEN`.
 
 Estado do banco remoto conferido antes (`wrangler d1 execute --remote`): existem
 `oauth_transactions`, `sessions`, `_cf_KV` e dois índices, e **não existe `d1_migrations`**.
