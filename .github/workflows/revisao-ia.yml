@@ -40,7 +40,7 @@ jobs:
         with:
           prompt-file: prompt.txt
           system-prompt: Voce e um revisor de codigo objetivo.
-          model: gpt-4o
+          model: auto
 
       - name: Comenta no PR
         env:
