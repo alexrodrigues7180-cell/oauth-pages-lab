@@ -19,7 +19,38 @@ jobs:
           node-version: 22
 
       - name: Aplica as migracoes no D1 remoto
-        run: npx --yes wrangler d1 migrations apply oauth-sessions-alexandre-laerto --remote
+        run: npx --yes wrangler d1 migrations apply oauth-sessions-alexandre-laerto --remote | tee saida-migracao.txt
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # Bonus: resumo das migracoes aplicadas, escrito no resumo da execucao.
+      - name: Monta o prompt do resumo
+        run: |
+          {
+            echo "Resuma em portugues, em ate 5 linhas, o que estas migracoes mudaram no banco."
+            echo "Diga o nome de cada tabela ou coluna afetada. Nao invente nada que nao esteja abaixo."
+            echo
+            echo "Saida do wrangler:"
+            echo '```'
+            cat saida-migracao.txt
+            echo '```'
+            echo
+            echo "SQL das migracoes:"
+            echo '```sql'
+            for f in migrations/*.sql; do echo "-- $f"; cat "$f"; done | head -c 10000
+            echo '```'
+          } > prompt-resumo.txt
+
+      - id: resumo
+        uses: actions/ai-inference@v3
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+        with:
+          prompt-file: prompt-resumo.txt
+          system-prompt: Voce resume mudancas de esquema de banco de dados de forma objetiva.
+
+      - name: Escreve o resumo no $GITHUB_STEP_SUMMARY
+        run: |
+          echo "## Migracoes aplicadas no D1" >> "$GITHUB_STEP_SUMMARY"
+          cat "${{ steps.resumo.outputs.response-file }}" >> "$GITHUB_STEP_SUMMARY"
