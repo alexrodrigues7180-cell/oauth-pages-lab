@@ -53,7 +53,13 @@ identificador privado versionado).
 
 - PR de demonstração: https://github.com/alexrodrigues7180-cell/oauth-pages-lab/pull/1
 - Bloqueado com a migração quebrada: `mergeStateStatus: BLOCKED`, check `verificar` em FAILURE
-- Liberado após a correção na mesma ramificação: `verificar` em SUCCESS
+- Liberado após a correção na mesma ramificação: `verificar` em SUCCESS, `mergeStateStatus`
+  passou de `BLOCKED` para `UNSTABLE` — mesclável. Não é `CLEAN` porque o job `revisar` falha
+  enquanto o `COPILOT_PAT` não existe, e ele não é um check obrigatório: só `verificar` é.
+  Isso é a Pergunta 4 na prática — a revisão por IA pode estar vermelha e o merge sai assim mesmo.
+
+O PR também mostra **dois** checks `verificar`, um do evento `push` e um do `pull_request`,
+que é o caso da Pergunta 1.
 
 `git push` direto na main, recusado:
 
