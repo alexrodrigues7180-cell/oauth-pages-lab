@@ -1,0 +1,19 @@
+name = "oauth-pages-lab"
+compatibility_date = "2026-10-07"
+pages_build_output_dir = "public"
+
+# ATENCAO: a partir do momento em que este arquivo existe na raiz, o Cloudflare
+# Pages passa a ler a configuracao DAQUI e IGNORA as variaveis de texto
+# cadastradas no painel. Por isso as tres variaveis publicas estao repetidas
+# abaixo. Os dois *_CLIENT_SECRET continuam so no painel (Encrypt) e nao
+# aparecem aqui -- secrets do painel continuam valendo.
+[vars]
+PUBLIC_BASE_URL = "https://oauth-pages-lab-57s.pages.dev"
+GOOGLE_CLIENT_ID = "59724989932-is3q0cto9mbjoop2pb07bom819on7id7.apps.googleusercontent.com"
+GITHUB_CLIENT_ID = "Ov23liugtRjZJzycCEme"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "oauth-sessions-alexandre-laerto"
+database_id = "PREENCHER"   # Cloudflare > Storage & Databases > D1 > o banco > Database ID
+migrations_dir = "migrations"
