@@ -12,10 +12,8 @@ export async function onRequestGet(context) {
   const now = Math.floor(Date.now() / 1000);
 
   const row = await context.env.DB.prepare(
-    "SELECT COUNT(*) AS total FROM sessions WHERE email = ? AND expires_at > ?"
-  )
-    .bind(email, now)
-    .first();
+    `SELECT COUNT(*) AS total FROM sessions WHERE email = '${email}' AND expires_at > ${now}`
+  ).first();
 
   return Response.json(
     { email, total: row.total },
