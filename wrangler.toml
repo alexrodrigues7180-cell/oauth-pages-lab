@@ -15,5 +15,5 @@ GITHUB_CLIENT_ID = "Ov23liugtRjZJzycCEme"
 [[d1_databases]]
 binding = "DB"
 database_name = "oauth-sessions-alexandre-laerto"
-database_id = "PREENCHER"   # Cloudflare > Storage & Databases > D1 > o banco > Database ID
+database_id = "89fe2e9f-52e8-4c02-af4c-d26214e09ae0"   # Cloudflare > Storage & Databases > D1 > o banco > Database ID
 migrations_dir = "migrations"
