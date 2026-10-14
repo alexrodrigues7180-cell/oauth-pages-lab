@@ -78,7 +78,7 @@ error: failed to push some refs to 'https://github.com/alexrodrigues7180-cell/oa
 
 Workflow: `.github/workflows/revisao-ia.yml`. Dispara em `opened` e `synchronize`, declara
 `contents: read` + `pull-requests: write`, monta o prompt com o diff contra a base, chama
-`actions/ai-inference@v1` e publica a resposta com `gh pr comment`.
+`actions/ai-inference@v3` e publica a resposta com `gh pr comment`.
 
 Já verificado no PR #1: `checkout@v6`, `setup-node@v6`, `npm install -g @github/copilot` e a
 montagem do prompt passam; só o step da IA falha, por falta do segredo `COPILOT_PAT`.
@@ -97,11 +97,53 @@ ler `choices` numa resposta que veio como o texto `OK` em vez de JSON. A mensage
 lugar errado, e foi preciso ler os inputs resolvidos no log (`endpoint`, `model`, `max-tokens`)
 para perceber que a versão em uso não era a que o resto do workflow pressupunha.
 
-- [ ] PR com o SQL vulnerável (`env.DB.prepare(\`... WHERE email = '${email}'\`)`): LINK
-- [ ] comentário da IA apontando a concatenação: LINK
-- [ ] `prepare("... WHERE email = ?").bind(email)` e segundo comentário no `synchronize`: LINK
-- [ ] log do erro ao remover `pull-requests: write`: LINK
-- [ ] afirmação errada ou irrelevante da IA: ESCREVER
+### Evidências
+
+- PR com o SQL vulnerável (`env.DB.prepare(\`... WHERE email = '${email}'\`)`, commit `fa61a47`):
+  https://github.com/alexrodrigues7180-cell/oauth-pages-lab/pull/2
+- Primeiro comentário da IA, apontando a concatenação:
+  https://github.com/alexrodrigues7180-cell/oauth-pages-lab/pull/2#issuecomment-6049039249
+  (`StringInjection`, HIGH, confiança 9/10, com a correção sugerida `WHERE email = ?` + `.bind(email, now)`)
+- Correção para `prepare("... WHERE email = ?").bind(email, now)` (commit `817e9ce`) e **segundo
+  comentário**, disparado pelo `synchronize`:
+  https://github.com/alexrodrigues7180-cell/oauth-pages-lab/pull/2#issuecomment-6178827575
+  (execução https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38639818085) —
+  o comentário diz, textualmente: *"A consulta SQL em `sessoes.js` usa `prepare().bind()`; não
+  encontrei SQL montado por concatenação."* O achado HIGH desapareceu entre um comentário e outro.
+- Log do erro ao remover `pull-requests: write`: PR auxiliar #3 (https://github.com/alexrodrigues7180-cell/oauth-pages-lab/pull/3), execução
+  https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38639925153. Com o workflow declarando apenas `contents: read`, os passos da IA
+  rodam normalmente e a falha acontece só na hora de publicar:
+
+```
+Run gh pr comment 3 --body-file "/tmp/modelResponse--2376-tt0oTNAuVXj6-.txt"
+GraphQL: Resource not accessible by integration (addComment)
+##[error]Process completed with exit code 1.
+```
+
+  O `GITHUB_TOKEN` continua válido — o que falta é o escopo de escrita em pull requests. Por isso
+  o erro aparece como `Resource not accessible by integration` e não como falha de autenticação.
+
+### Crítica: onde a IA erra ou fala o que não importa
+
+No segundo comentário, depois de listar os achados, a IA oferece três ações e encerra com
+*"Responda com a opção desejada"*, uma delas sendo *"posso documentar os achados em
+`SECURITY-REVIEW.md` e criar um commit"*. As duas coisas são impossíveis no contexto em que ela
+está rodando: ninguém vai responder a um comentário escrito por um robô dentro de um job que já
+terminou, e o workflow declara `contents: read` — ela não tem permissão para criar commit nenhum.
+É resposta de assistente interativo colada num canal onde não existe interação.
+
+No mesmo par de comentários aparece a variação entre execuções: o achado `BrokenAccessControl`
+(o endpoint aceita qualquer valor em `__Host-session`) foi repetido nas duas revisões com
+confiança 9/10, mas a severidade e as linhas citadas mudaram (MEDIUM em `sessoes.js:7` na
+primeira, MEDIUM em `sessoes.js:6-8` na segunda) e, na primeira, o caminho do arquivo saiu como
+`/home/runner/work/oauth-pages-lab/oauth-pages-lab/functions/api/sessoes.js` — o caminho interno
+do runner, inútil para quem lê o PR.
+
+Vale registrar o contrário também, por honestidade: o achado `LOW` sobre faltar `pipefail` no
+`migrar.yml` está **certo** e não foi pedido no prompt. O shell padrão do `run:` é `bash -e 0`,
+sem `pipefail`, então um `wrangler ... | tee` pode falhar e o passo passar como verde. É
+exatamente o tipo de coisa que o `htmlhint` e o `git grep` do CI não veem — e é por isso que a
+revisão por IA soma, mesmo sem poder ser o portão (Pergunta 4).
 
 ## Tarefa 4 — migrações D1 depois do merge
 
@@ -119,9 +161,74 @@ Então a primeira execução vai aplicar 0001 e 0002 de uma vez: a 0001 é `CREA
 EXISTS` e passa como no-op sobre as tabelas criadas à mão pelo Console em 16/09, e a 0002 cria
 de fato a coluna `last_seen_at` em `sessions`.
 
-- [ ] execução do merge: LINK
-- [ ] saída do `PRAGMA table_info(sessions)` mostrando `last_seen_at`: COLAR
-- [ ] merge sem tocar `migrations/` e sem execução: LINK
+### Evidências
+
+**Execução disparada pelo merge** do PR #2 (commit de merge `42b6d9b`, que trouxe `migrations/**`
+para a `main` pela primeira vez):
+https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38640484972
+
+Saída do `wrangler d1 migrations apply --remote` nessa execução:
+
+```
+Migrations to be applied:
+┌──────────────────────────┐
+│ name                     │
+├──────────────────────────┤
+│ 0001_schema_inicial.sql  │
+├──────────────────────────┤
+│ 0002_adiciona_coluna.sql │
+└──────────────────────────┘
+? About to apply 2 migration(s)
+🤖 Using fallback value in non-interactive context: yes
+🌀 Executing on remote database oauth-sessions-alexandre-laerto (89fe2e9f-...):
+🚣 Executed 5 commands in 0.78ms
+│ 0001_schema_inicial.sql  │ ✅     │
+│ 0002_adiciona_coluna.sql │ 🕒️    │
+```
+
+A 0001 passou como no-op (é `CREATE TABLE IF NOT EXISTS` sobre tabelas que já existiam, criadas
+pelo Console em 16/09) e a 0002 criou de fato a coluna. Como não havia tabela `d1_migrations`, as
+duas foram registradas nesta primeira execução.
+
+**Saída do `PRAGMA table_info(sessions)`** no passo seguinte da mesma execução, já com a coluna
+nova (`cid 7`):
+
+```
+ cid | name          | type
+-----+---------------+---------
+   0 | id_hash       | TEXT      (pk)
+   1 | issuer        | TEXT
+   2 | subject       | TEXT
+   3 | email         | TEXT
+   4 | display_name  | TEXT
+   5 | expires_at    | INTEGER
+   6 | created_at    | INTEGER
+   7 | last_seen_at  | INTEGER
+```
+
+**Merge que não toca `migrations/` e não dispara nada:** é o merge deste próprio PR de entrega,
+que altera apenas `AVALIACAO.md`. Link do PR e prova de que o `migrar` não aparece na lista de
+execuções da `main` depois dele: https://github.com/alexrodrigues7180-cell/oauth-pages-lab/pull/5 — este PR altera somente o `AVALIACAO.md`.
+Depois do merge dele, a lista de execuções do workflow `migrar`
+(https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/workflows/migrar.yml) continua com apenas duas entradas, as dos merges dos PRs #2 e
+#4. O `ci` roda (o gatilho dele é todo `push`), o `migrar` não.
+
+**Segunda execução, com a migração `0003_indice_email.sql`** (merge do PR #4):
+https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38640930171 — desta vez o wrangler aplicou **só a 0003**:
+
+```
+│ 0003_indice_email.sql │
+🚣 Executed 2 commands in 0.37ms
+│ 0003_indice_email.sql │ ✅     │
+```
+
+As 0001 e 0002 não voltaram a rodar porque a tabela `d1_migrations`, criada na primeira execução,
+agora registra o que já foi aplicado. É a diferença entre um workflow que aplica migrações e um
+que reexecuta o esquema inteiro a cada merge.
+
+Nota de método: o filtro `paths` só existe no gatilho `push`. Se o workflow também escutasse
+`pull_request`, ele rodaria em cada PR aberto — aplicando migração em banco de produção antes de
+qualquer revisão.
 
 ## Perguntas
 
@@ -156,4 +263,22 @@ passar um problema real. Ela serve para apontar o que um linter não vê, não p
 
 Step já escrito no final do `migrar.yml`.
 
-- [ ] resumo visível no `$GITHUB_STEP_SUMMARY` da execução: LINK
+Resumo visível no `$GITHUB_STEP_SUMMARY`:
+https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38640930171#summary-116115925153
+
+A primeira tentativa do bônus **falhou** (https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38640484972), por dois motivos que só
+aparecem no log:
+
+```
+Running Copilot CLI: copilot -p <prompt> -s --no-ask-user --model gpt-4.1
+##[error]Copilot CLI not found (tried to spawn "copilot").
+```
+
+1. A `ai-inference@v3` não fala com uma API: ela **executa o binário `copilot`**. O `revisao-ia`
+   instala esse binário com `npm install -g @github/copilot`, e o `migrar.yml` não instalava —
+   o passo da IA só funciona num job que tenha o CLI.
+2. O input `model` tem default `gpt-4.1`, que não existe no plano **Copilot Free**. Trocado por
+   `model: auto`, deixando o próprio Copilot escolher o modelo disponível.
+
+Corrigido no PR #4 (https://github.com/alexrodrigues7180-cell/oauth-pages-lab/pull/4), junto com `shell: bash` no passo que aplica as migrações — que
+liga o `pipefail` e atende ao achado `LOW` levantado pela própria revisão por IA no PR #2.
