@@ -210,6 +210,19 @@ nova (`cid 7`):
 que altera apenas `AVALIACAO.md`. Link do PR e prova de que o `migrar` não aparece na lista de
 execuções da `main` depois dele: PR_DE_ENTREGA
 
+**Segunda execução, com a migração `0003_indice_email.sql`** (merge do PR #4):
+https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38640930171 — desta vez o wrangler aplicou **só a 0003**:
+
+```
+│ 0003_indice_email.sql │
+🚣 Executed 2 commands in 0.37ms
+│ 0003_indice_email.sql │ ✅     │
+```
+
+As 0001 e 0002 não voltaram a rodar porque a tabela `d1_migrations`, criada na primeira execução,
+agora registra o que já foi aplicado. É a diferença entre um workflow que aplica migrações e um
+que reexecuta o esquema inteiro a cada merge.
+
 Nota de método: o filtro `paths` só existe no gatilho `push`. Se o workflow também escutasse
 `pull_request`, ele rodaria em cada PR aberto — aplicando migração em banco de produção antes de
 qualquer revisão.
@@ -247,4 +260,22 @@ passar um problema real. Ela serve para apontar o que um linter não vê, não p
 
 Step já escrito no final do `migrar.yml`.
 
-- [ ] resumo visível no `$GITHUB_STEP_SUMMARY` da execução: LINK
+Resumo visível no `$GITHUB_STEP_SUMMARY`:
+https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38640930171#summary-116115925153
+
+A primeira tentativa do bônus **falhou** (https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38640484972), por dois motivos que só
+aparecem no log:
+
+```
+Running Copilot CLI: copilot -p <prompt> -s --no-ask-user --model gpt-4.1
+##[error]Copilot CLI not found (tried to spawn "copilot").
+```
+
+1. A `ai-inference@v3` não fala com uma API: ela **executa o binário `copilot`**. O `revisao-ia`
+   instala esse binário com `npm install -g @github/copilot`, e o `migrar.yml` não instalava —
+   o passo da IA só funciona num job que tenha o CLI.
+2. O input `model` tem default `gpt-4.1`, que não existe no plano **Copilot Free**. Trocado por
+   `model: auto`, deixando o próprio Copilot escolher o modelo disponível.
+
+Corrigido no PR #4 (https://github.com/alexrodrigues7180-cell/oauth-pages-lab/pull/4), junto com `shell: bash` no passo que aplica as migrações — que
+liga o `pipefail` e atende ao achado `LOW` levantado pela própria revisão por IA no PR #2.
