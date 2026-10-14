@@ -161,9 +161,58 @@ Então a primeira execução vai aplicar 0001 e 0002 de uma vez: a 0001 é `CREA
 EXISTS` e passa como no-op sobre as tabelas criadas à mão pelo Console em 16/09, e a 0002 cria
 de fato a coluna `last_seen_at` em `sessions`.
 
-- [ ] execução do merge: LINK
-- [ ] saída do `PRAGMA table_info(sessions)` mostrando `last_seen_at`: COLAR
-- [ ] merge sem tocar `migrations/` e sem execução: LINK
+### Evidências
+
+**Execução disparada pelo merge** do PR #2 (commit de merge `42b6d9b`, que trouxe `migrations/**`
+para a `main` pela primeira vez):
+https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38640484972
+
+Saída do `wrangler d1 migrations apply --remote` nessa execução:
+
+```
+Migrations to be applied:
+┌──────────────────────────┐
+│ name                     │
+├──────────────────────────┤
+│ 0001_schema_inicial.sql  │
+├──────────────────────────┤
+│ 0002_adiciona_coluna.sql │
+└──────────────────────────┘
+? About to apply 2 migration(s)
+🤖 Using fallback value in non-interactive context: yes
+🌀 Executing on remote database oauth-sessions-alexandre-laerto (89fe2e9f-...):
+🚣 Executed 5 commands in 0.78ms
+│ 0001_schema_inicial.sql  │ ✅     │
+│ 0002_adiciona_coluna.sql │ 🕒️    │
+```
+
+A 0001 passou como no-op (é `CREATE TABLE IF NOT EXISTS` sobre tabelas que já existiam, criadas
+pelo Console em 16/09) e a 0002 criou de fato a coluna. Como não havia tabela `d1_migrations`, as
+duas foram registradas nesta primeira execução.
+
+**Saída do `PRAGMA table_info(sessions)`** no passo seguinte da mesma execução, já com a coluna
+nova (`cid 7`):
+
+```
+ cid | name          | type
+-----+---------------+---------
+   0 | id_hash       | TEXT      (pk)
+   1 | issuer        | TEXT
+   2 | subject       | TEXT
+   3 | email         | TEXT
+   4 | display_name  | TEXT
+   5 | expires_at    | INTEGER
+   6 | created_at    | INTEGER
+   7 | last_seen_at  | INTEGER
+```
+
+**Merge que não toca `migrations/` e não dispara nada:** é o merge deste próprio PR de entrega,
+que altera apenas `AVALIACAO.md`. Link do PR e prova de que o `migrar` não aparece na lista de
+execuções da `main` depois dele: PR_DE_ENTREGA
+
+Nota de método: o filtro `paths` só existe no gatilho `push`. Se o workflow também escutasse
+`pull_request`, ele rodaria em cada PR aberto — aplicando migração em banco de produção antes de
+qualquer revisão.
 
 ## Perguntas
 
