@@ -18,7 +18,10 @@ jobs:
         with:
           node-version: 22
 
+      - run: npm install -g @github/copilot
+
       - name: Aplica as migracoes no D1 remoto
+        shell: bash
         run: npx --yes wrangler d1 migrations apply oauth-sessions-alexandre-laerto --remote | tee saida-migracao.txt
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -55,6 +58,7 @@ jobs:
         with:
           prompt-file: prompt-resumo.txt
           system-prompt: Voce resume mudancas de esquema de banco de dados de forma objetiva.
+          model: auto
 
       - name: Escreve o resumo no $GITHUB_STEP_SUMMARY
         run: |
