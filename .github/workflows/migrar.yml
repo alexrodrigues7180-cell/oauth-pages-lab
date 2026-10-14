@@ -24,6 +24,12 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+      - name: Confirma a coluna nova no esquema
+        run: npx --yes wrangler d1 execute oauth-sessions-alexandre-laerto --remote --command "PRAGMA table_info(sessions)"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       # Bonus: resumo das migracoes aplicadas, escrito no resumo da execucao.
       - name: Monta o prompt do resumo
         run: |
