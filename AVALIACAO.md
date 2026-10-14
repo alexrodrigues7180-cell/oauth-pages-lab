@@ -208,7 +208,10 @@ nova (`cid 7`):
 
 **Merge que não toca `migrations/` e não dispara nada:** é o merge deste próprio PR de entrega,
 que altera apenas `AVALIACAO.md`. Link do PR e prova de que o `migrar` não aparece na lista de
-execuções da `main` depois dele: PR_DE_ENTREGA
+execuções da `main` depois dele: https://github.com/alexrodrigues7180-cell/oauth-pages-lab/pull/5 — este PR altera somente o `AVALIACAO.md`.
+Depois do merge dele, a lista de execuções do workflow `migrar`
+(https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/workflows/migrar.yml) continua com apenas duas entradas, as dos merges dos PRs #2 e
+#4. O `ci` roda (o gatilho dele é todo `push`), o `migrar` não.
 
 **Segunda execução, com a migração `0003_indice_email.sql`** (merge do PR #4):
 https://github.com/alexrodrigues7180-cell/oauth-pages-lab/actions/runs/38640930171 — desta vez o wrangler aplicou **só a 0003**:
